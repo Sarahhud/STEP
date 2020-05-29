@@ -9,3 +9,5 @@ polyfills-es5*
 runtime-es2015*
 runtime-es5*
 .editorconfig*
+.3rdpartylicenses.txt
+.styles.*
