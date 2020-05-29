@@ -52,3 +52,4 @@ polyfills-es2015*
 polyfills-es5*
 runtime-es2015*
 runtime-es5*
+.editorconfig*
