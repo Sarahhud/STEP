@@ -49,7 +49,7 @@
     display: flex;
     flex-direction: column;
     margin: 82px auto 32px;
-    max-width: 960px;
+    max-width: 1050px;
     padding: 0 16px;
   }
 
@@ -91,7 +91,7 @@
 
   .photo {
     border-radius: 5px;
-    height: 650px;
+    height: 550px;
     padding: 20px;
     width: 100%;
   }
@@ -119,7 +119,7 @@
   }
 
   .card.highlight-card {
-    background-color: #1976d2;
+    background-color: #6a9ccf;
     border: none;
     color: white;
     font-weight: 600;
@@ -135,12 +135,8 @@
   a,
   a:hover,
   a:visited {
-    color: #1976d2;
-    text-decoration: none;
-  }
-
-  a:hover {
     color: #125699;
+    text-decoration: none;
   }
 
   svg#clouds {
