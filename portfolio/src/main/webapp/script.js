@@ -11,7 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
 /**
  * Adds a random greeting to the page.
  */
@@ -32,6 +31,18 @@ function addRandomGreeting() {
 
 async function addGreeting() {
   const response = await fetch('/data');
-  const visitorGreeting = await response.text();
-  document.getElementById('message-container').innerText = visitorGreeting;
+  const visitorGreeting = await response.json();
+  const greeting = document.getElementById('message-container');
+  greeting.innerHTML = '';
+  greeting.appendChild(createListElement(visitorGreeting.get(0)));
+  greeting.appendChild(createListElement(visitorGreeting.get(1)));
+  greeting.appendChild(createListElement(visitorGreeting.get(2)));
+
+}
+
+/** Creates an <li> element containing text. */
+function createListElement(text) {
+  const liElement = document.createElement('li');
+  liElement.innerText = text;
+  return liElement;
 }
