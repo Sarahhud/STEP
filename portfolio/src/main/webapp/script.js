@@ -32,17 +32,17 @@ function addRandomGreeting() {
 async function addGreeting() {
   const response = await fetch('/data');
   const visitorGreeting = await response.json();
-  const greeting = document.getElementById('message-container');
-  greeting.innerHTML = '';
-  greeting.appendChild(createListElement(visitorGreeting.get(0)));
-  greeting.appendChild(createListElement(visitorGreeting.get(1)));
-  greeting.appendChild(createListElement(visitorGreeting.get(2)));
-
+  const container = document.getElementById('message-container');
+  container.innerHTML = createList(visitorGreeting);
 }
 
 /** Creates an <li> element containing text. */
-function createListElement(text) {
-  const liElement = document.createElement('li');
-  liElement.innerText = text;
-  return liElement;
+function createList(text) {
+  addRandomGreeting();
+  htmlList = '<ul>';
+  for(greeting of text){
+      htmlList += '<li>' + greeting + "</li>";
+  }
+  htmlList += '</ul>'
+  return htmlList;
 }
