@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+
 <html>
   <head>
     <meta charset="UTF-8">
@@ -23,9 +23,19 @@
               <li> I am learning Python on my own for fun. </li>
           </ol>
       </p>
+      <p>Test message!</p>
       <p>Click here to view a random fact about me!:</p>
       <button onclick="addRandomGreeting()">Random Fact Generator</button>
-      <div id="greeting-container"></div>
+
+      <h1>Comment Box</h1>
+      <br/>
+      <form action="/data" method="POST">
+          <textarea name="text-input">Type your comments in here.</textarea>
+          <input type="submit" onclick="getCommentBox()"/>
+      </form>
+      <br/>
+      <div id="comment-history"></div>
+      <h2 id="total"></h2>
     </div>
   </body>
 </html>
