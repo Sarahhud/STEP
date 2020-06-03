@@ -1,4 +1,5 @@
 #content {
+font-family: "Bradley", cursive;
   margin-left: auto;
   margin-right: auto;
   width: 650px;
@@ -19,7 +20,6 @@
 body {
   background-attachment: fixed;
   background-color: #f5f1f1;
-  background-image: url('/images/city.jpg');
   background-position: center center;
   background-repeat: no-repeat;
   background-size: cover;
@@ -39,5 +39,14 @@ body {
 /* Add some padding inside the card container */
 .container {
   padding: 2px 16px;
+}
+
+.div, #comment-history {
+    background-color: white;
+}
+
+.h3 {
+    font: white;
+    font-family: "Bradley", cursive;
 }
 

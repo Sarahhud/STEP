@@ -25,7 +25,7 @@ import com.google.gson.Gson;
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
-    private String comments = "";
+  private String comments = "Comments are listed from oldest to newest:\n\n";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -38,8 +38,8 @@ public class DataServlet extends HttpServlet {
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
     // Get the input from the form.
     String responseText = getParameter(request, "text-input", "");
-    comments += responseText;
-    response.sendRedirect("/");
+    comments += "\n\n" + responseText;
+    response.sendRedirect("/index.html");
   }
 
   /**

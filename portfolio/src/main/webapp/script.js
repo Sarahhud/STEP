@@ -29,8 +29,8 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-function getCommentBox() {
-    console.log("Clicked");
+
+function loaded(){
     fetch('/data').then(response => response.json()).then((comment) => {
         const container = document.getElementById('comment-history');
         console.log(comment);
