@@ -29,20 +29,11 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-async function addGreeting() {
-  const response = await fetch('/data');
-  const visitorGreeting = await response.json();
-  const container = document.getElementById('message-container');
-  container.innerHTML = createList(visitorGreeting);
-}
 
-/** Creates an <li> element containing text. */
-function createList(text) {
-  addRandomGreeting();
-  htmlList = '<ul>';
-  for(greeting of text){
-      htmlList += '<li>' + greeting + "</li>";
-  }
-  htmlList += '</ul>'
-  return htmlList;
+function loaded(){
+    fetch('/data').then(response => response.json()).then((comment) => {
+        const container = document.getElementById('comment-history');
+        console.log(comment);
+        container.innerText = comment;
+    });
 }

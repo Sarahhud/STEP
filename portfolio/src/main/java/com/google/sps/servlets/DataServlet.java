@@ -25,21 +25,38 @@ import com.google.gson.Gson;
 /** Servlet that returns some example content. TODO: modify this file to handle comments data */
 @WebServlet("/data")
 public class DataServlet extends HttpServlet {
+  private String comments = "Comments are listed from oldest to newest:\n\n";
 
   @Override
   public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-    ArrayList<String> testVar = new ArrayList<String>();
-    testVar.add("My favorite color is blue.");
-    testVar.add("Soccer is my favorite sport to watch.");
-    testVar.add("I should graduate in May 2022.");
-    String json = convertToJsonUsingGson(testVar);
     response.setContentType("application/json;");
+    String json = new Gson().toJson(comments);
     response.getWriter().println(json);
   }
 
-  private String convertToJsonUsingGson(ArrayList<String> list) {
+  @Override
+  public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    // Get the input from the form.
+    String responseText = getParameter(request, "text-input", "");
+    comments += "\n\n" + responseText;
+    response.sendRedirect("/index.html");
+  }
+
+  /**
+   * @return the request parameter, or the default value if the parameter
+   *         was not specified by the client
+   */
+  private String getParameter(HttpServletRequest request, String name, String defaultValue) {
+    String value = request.getParameter(name);
+    if (value == null) {
+      return defaultValue;
+    }
+    return value;
+  }
+
+  private String convertToJsonUsingGson(String str) {
     Gson gson = new Gson();
-    String json = gson.toJson(list);
+    String json = gson.toJson(str);
     return json;
   }
 }
