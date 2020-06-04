@@ -24,11 +24,16 @@
       <button onclick="addRandomGreeting()">Random Fact Generator</button>
       <div id="greeting-container"></div>
       <h3>Comment Box</h3>
-      <form action="/data" method="POST">
-          <textarea name="text-input">Type your comments in here.</textarea>
+      <form action="/new-comment" method="POST">
+          <p>Name:</p>
+          <input type="text" name="author"/>
+          <p>Title:</p>
+          <input type="text" name="title"/>
+          <p>Comment:</p>
+          <textarea name="input"></textarea>
           <input type="submit">
       </form>
-      <div id="comment-history"></div>
+      <ul id="comment-history"></ul>
     </div>
   </body>
 </html>
