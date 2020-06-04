@@ -11,6 +11,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 /**
  * Adds a random greeting to the page.
  */
@@ -29,13 +30,25 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-
 function loaded(){
+    let commentNumber = -1;
+    fetch('/comment-choice').then(response => response.json()).then((number) => {
+        commentNumber = parseInt(number);
+    }); 
     fetch('/data').then(response => response.json()).then((comments) => {
-        const commentListElement = document.getElementById('comment-history');
-        for(let comment of comments){
-            console.log(comment)
-            commentListElement.appendChild(createCommentElement(comment, document));
+        const commentListElement = document.getElementById('comment-history');      
+        if(commentNumber === -1){
+            for(let comment of comments){
+                console.log(comment)
+                commentListElement.appendChild(createCommentElement(comment, document));
+            }
+        }
+        else{
+            comments = comments.slice(0,commentNumber);
+            for(let comment of comments){
+                console.log(comment)
+                commentListElement.appendChild(createCommentElement(comment, document));
+            }
         }
     });
 }

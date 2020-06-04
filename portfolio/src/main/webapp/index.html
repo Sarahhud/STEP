@@ -33,6 +33,11 @@
           <textarea name="input"></textarea>
           <input type="submit">
       </form>
+      <form action="/comment-choice" method="POST">
+          <p>How many comments would you like displayed?</p>
+          <input type="number" name="comment-choice" min="1">
+          <input type="submit">
+      </form>
       <ul id="comment-history"></ul>
     </div>
   </body>
