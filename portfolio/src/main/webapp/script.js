@@ -31,9 +31,46 @@ function addRandomGreeting() {
 
 
 function loaded(){
-    fetch('/data').then(response => response.json()).then((comment) => {
-        const container = document.getElementById('comment-history');
-        console.log(comment);
-        container.innerText = comment;
+    fetch('/data').then(response => response.json()).then((comments) => {
+        const commentListElement = document.getElementById('comment-history');
+        comments.forEach((comment) => {
+            commentListElement.appendChild(createCommentElement(comment, document));
+        })
     });
+}
+
+function createCommentElement(comment, document) {
+  const commentElement = document.createElement('li');
+  commentElement.className = 'comment';
+
+  const authorElement = document.createElement('div');
+  authorElement.innerText = comment.author;
+
+  const titleElement = document.createElement('div');
+  titleElement.innerText = comment.title;
+
+  const textElement = document.createElement('div');
+  textElement.innerText = comment.text;
+
+  const deleteButtonElement = document.createElement('button');
+  deleteButtonElement.innerText = 'Delete';
+  deleteButtonElement.addEventListener('click', () => {
+    deleteComment(comment);
+
+    // Remove the comment from the DOM.
+    commentElement.remove();
+  });
+
+  commentElement.appendChild(authorElement);
+  commentElement.appendChild(titleElement);
+  commentElement.appendChild(textElement);
+  commentElement.appendChild(deleteButtonElement);
+  return commentElement;
+}
+
+/** Tells the server to delete the comment. */
+function deleteComment(comment) {
+  const params = new URLSearchParams();
+  params.append('id', comment.id);
+  fetch('/delete-comment', {method: 'POST', body: params});
 }
