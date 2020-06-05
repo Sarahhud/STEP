@@ -13,7 +13,6 @@
   </div> 
   <body onload="loaded()">
     <div id="content">
-      <h1 class="header">Sarah Hudson's Portfolio</h1>
       <img src="/images/Sarah2.jpg" id="photo" alt="Sarah Hudson's profile photo." width="100%" height="300">
       <p>Hi! I am a STEP intern at Google. This is my first personal web page.
           Some fun facts about me are...
@@ -29,7 +28,7 @@
       <button onclick="addRandomGreeting()">Random Fact Generator</button>
       <div id="greeting-container"></div>
 
-      <h2 font-family="cursive">Click on the links below to learn more about me!</h2>
+      <h2>Click on the links below to learn more about me!</h2>
 
       <div class="card-container">
         <a class="card" target="_blank" rel="noopener" href="http://www.ou.edu/coe/cs">
@@ -77,33 +76,26 @@
             </a>
             <div class="desc">A beautiful hike in Oregon!</div>
         </div>
-
-        <div class="gallery">
-            <a target="_blank" href="img_mountains.jpg">
-            <img src="images/SkiingInWA.png" alt="A Ski Chalet in the Washington Mtns." width="600" height="400">
-            </a>
-            <div class="desc">A Ski Chalet I stayed at in the winter of 2018 in the Washington Mtns.</div>
-        </div>
       </div>
 
       <div id="comment-box">
-        <h4>Comment Box</h4>
-        <form action="/new-comment" method="POST">
-            <p>Name:</p>
-            <input type="text" name="author"/>
-            <p>Title:</p>
-            <input type="text" name="title"/>
-            <p>Comment:</p>
-            <input type="text" name="input"/>
-            <input type="submit">
-        </form>
-        <form action="/comment-choice" method="POST">
-            <p>How many comments would you like displayed?</p>
-            <input type="number" name="comment-choice" min="1">
-            <input type="submit">
-        </form>
-        <div id="comment-history"></div>
+            <h4>Comment Box</h4>
+            <form action="/new-comment" method="POST">
+              <div>Name:</div>
+              <input type="text" name="author"/>
+              <div>Title:</div>
+              <input type="text" name="title"/>
+              <div>Comment:</div>
+              <input type="text" name="input"/>
+              <input type="submit">
+            </form>
+            <form action="/comment-choice" method="POST">
+              <p>How many comments would you like displayed?</p>
+              <input type="number" name="comment-choice" min="1">
+              <input type="submit">
+            </form>
       </div>
+        <div id="comment-history"></div>
     </div>
   </body>
    <svg id="clouds" 
