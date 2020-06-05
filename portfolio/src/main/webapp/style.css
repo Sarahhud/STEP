@@ -1,13 +1,40 @@
 #content {
+  align-items: center;
   font-family: "Bradley", cursive;
   margin-left: auto;
   margin-right: auto;
+  text-align: center;
   width: 650px;
 }
 
 #greeting-container {
   margin-top: 20px;
 }
+
+.banner-title {
+  align-items: left;
+  flex: 1;
+  font-family: cursive;
+  padding-left: 10px;
+}
+
+.text {
+    margin-right: 24px;
+}
+
+.toolbar {
+  align-items: center;
+  background-color: #6a9ccf;
+  color: white;
+  display: flex;
+  font-weight: 600;
+  height: 60px;
+  left: 0;
+  position: fixed;
+  right: 0;
+  top: 0;
+}
+
 .header {
   float: inherit;
   font-family: "Bradley", cursive;
@@ -18,11 +45,12 @@
 }
 
 body {
-  background-attachment: fixed;
-  background-color: #f5f1f1;
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  margin: 82px auto 32px;
+  max-width: 1050px;
+  padding: 0 16px;
 }
 
 .card {
@@ -41,8 +69,21 @@ body {
   padding: 2px 16px;
 }
 
-.div, #comment-history {
-    background-color: white;
+p.comment {
+  background-color: rgb(250, 244, 244);
+  border-color: #6a9ccf;
+  border-style: ridge;
+  font-family: sans-serif;
+}
+
+ol {
+    text-align: left;
+}
+
+.h2 {
+    text-align: center;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .h3 {
@@ -50,3 +91,148 @@ body {
     font-family: "Bradley", cursive;
 }
 
+.form{
+    padding: 3px;
+}
+
+#comment-box {
+    text-align: left;
+    clear: both;
+    color: rgb(7, 0, 0);
+}
+
+.button {
+    border: none;
+}
+
+#clouds {
+    bottom: -160px;
+    left: -230px;
+    position: fixed;
+    width: 1920px;
+    z-index: -10;
+}
+
+div.gallery {
+  float: left;
+  border: 1px solid #ccc;
+  margin: 5px;
+  width: 180px;
+}
+
+div.gallery:hover {
+  border: 1px solid #777;
+}
+
+div.gallery img {
+  height: auto;
+  width: 100%;
+}
+
+div.desc {
+  padding: 15px;
+  text-align: center;
+}
+
+svg.material-icons {
+  height: 24px;
+  width: auto;
+}
+
+svg.material-icons:not(:last-child) {
+  margin-right: 8px;
+}
+
+.card svg.material-icons path {
+  fill: #888;
+}
+
+.card-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.card {
+  align-items: center;
+  border-radius: 4px;
+  border: 1px solid #eee;
+  background-color: #fafafa;
+  display: flex;
+  flex-direction: row;
+  height: 60px;
+  justify-content: center;
+  line-height: 24px;
+  margin: 0 8px 16px;
+  padding: 16px;
+  transition: all 0.2s ease-in-out;
+  width: 200px;
+}
+
+.photo {
+  border-radius: 5px;
+  height: 550px;
+  padding: 20px;
+  width: 100%;
+}
+
+.card-container .card:not(:last-child) {
+  margin-right: 0;
+}
+
+.card.card-small {
+  height: 16px;
+  width: 168px;
+}
+
+.card-container .card:not(.highlight-card) {
+  cursor: pointer;
+}
+
+.card-container .card:not(.highlight-card):hover {
+  box-shadow: 0 4px 17px rgba(0, 0, 0, 0.35);
+  transform: translateY(-3px);
+}
+
+.card-container .card:not(.highlight-card):hover .material-icons path {
+  fill: rgb(105, 103, 103);
+}
+
+.card.highlight-card {
+  background-color: #6a9ccf;
+  border: none;
+  color: white;
+  font-weight: 600;
+  min-width: 30%;
+  position: relative;
+  width: auto;
+}
+
+.card.card.highlight-card span {
+  margin-left: 60px;
+}
+
+a,
+a:hover,
+a:visited {
+  color: #125699;
+  text-decoration: none;
+}
+
+@media screen and (max-width: 767px) {
+
+  .card-container > *:not(.circle-link) ,
+  .terminal {
+    width: 100%;
+  }
+
+  .card:not(.highlight-card) {
+    height: 16px;
+    margin: 8px 0;
+  }
+
+  .card.highlight-card span {
+    margin-left: 72px;
+ }
+}
