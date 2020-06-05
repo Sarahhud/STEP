@@ -54,7 +54,7 @@ function loaded(){
 }
 
 function createCommentElement(comment, document) {
-  const commentElement = document.createElement('li');
+  const commentElement = document.createElement('p');
   commentElement.className = 'comment';
 
   const authorElement = document.createElement('div');
@@ -64,7 +64,7 @@ function createCommentElement(comment, document) {
   titleElement.innerText = comment.title;
 
   const textElement = document.createElement('div');
-  textElement.innerText = comment.text;
+  textElement.innerText = comment.text + "              ";
 
   const deleteButtonElement = document.createElement('button');
   deleteButtonElement.innerText = 'Delete';
@@ -74,11 +74,11 @@ function createCommentElement(comment, document) {
     // Remove the comment from the DOM.
     commentElement.remove();
   });
-
+  textElement.append(deleteButtonElement);
   commentElement.appendChild(authorElement);
   commentElement.appendChild(titleElement);
   commentElement.appendChild(textElement);
-  commentElement.appendChild(deleteButtonElement);
+  //commentElement.appendChild(deleteButtonElement);
   return commentElement;
 }
 
