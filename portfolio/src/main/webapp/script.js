@@ -37,16 +37,14 @@ function loaded(){
     }); 
     fetch('/data').then(response => response.json()).then((comments) => {
         const commentListElement = document.getElementById('comment-history');      
-        if(commentNumber === -1){
+        if(commentNumber===-1){
             for(let comment of comments){
-                console.log(comment)
                 commentListElement.appendChild(createCommentElement(comment, document));
             }
         }
         else{
             comments = comments.slice(0,commentNumber);
             for(let comment of comments){
-                console.log(comment)
                 commentListElement.appendChild(createCommentElement(comment, document));
             }
         }
@@ -64,7 +62,8 @@ function createCommentElement(comment, document) {
   titleElement.innerText = comment.title;
 
   const textElement = document.createElement('div');
-  textElement.innerText = comment.text + "              ";
+  textElement.className = 'text';
+  textElement.innerText = comment.text;
 
   const deleteButtonElement = document.createElement('button');
   deleteButtonElement.innerText = 'Delete';
@@ -78,7 +77,6 @@ function createCommentElement(comment, document) {
   commentElement.appendChild(authorElement);
   commentElement.appendChild(titleElement);
   commentElement.appendChild(textElement);
-  //commentElement.appendChild(deleteButtonElement);
   return commentElement;
 }
 

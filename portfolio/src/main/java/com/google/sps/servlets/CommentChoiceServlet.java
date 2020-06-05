@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServletResponse;
 /** Servlet that encapsulates the subtraction game. */
 @WebServlet("/comment-choice")
 public final class CommentChoiceServlet extends HttpServlet {
-
   private int choice = -1;
 
   @Override
@@ -22,7 +21,6 @@ public final class CommentChoiceServlet extends HttpServlet {
 
   @Override
   public void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-
     // Get the input from the form.
     choice = getChoice(request);
 
