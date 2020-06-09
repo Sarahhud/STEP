@@ -58,10 +58,8 @@ async function loaded(){
     });
 }
 
-function getLink(){
-    return fetch('/log-out').then(response => response.json()).then((url) => {
-        return String(url);
-    });
+function getLink() {
+    return fetch('/log-out').then(response => response.json()).then((url) => String(url));
 }
 
 function createCommentElement(comment, document) {
