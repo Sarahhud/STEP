@@ -66,9 +66,13 @@ function createCommentElement(comment, document) {
   textElement.className = 'text';
   textElement.innerText = comment.text;
 
-//   const textElement = document.createElement('div');
-//   textElement.className = 'text';
-//   textElement.innerText = comment.text;
+  picElement = null;
+  console.log(comment.url);
+  if (comment.url) {
+      picElement = document.createElement('div');
+      picElement.className = 'gallery';
+      picElement.innerHTML = `<img src=${comment.url}>`;
+    }
 
   const deleteButtonElement = document.createElement('button');
   deleteButtonElement.innerText = 'Delete';
@@ -82,6 +86,9 @@ function createCommentElement(comment, document) {
   commentElement.appendChild(authorElement);
   commentElement.appendChild(titleElement);
   commentElement.appendChild(textElement);
+  if (picElement) {
+      commentElement.appendChild(picElement);
+  }
   return commentElement;
 }
 
