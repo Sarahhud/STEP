@@ -39,18 +39,18 @@ async function loaded(){
     fetch('/data').then(response => response.json()).then(async (comments) => {
         const commentListElement = document.getElementById('comment-history');  
         let link = await getLink();    
-        if(commentNumber===-1){
-            for(let comment of comments){
+        if (commentNumber === -1) {
+            for (let comment of comments) {
                 commentListElement.appendChild(createCommentElement(comment, document));
             }
         }
         else{
             comments = comments.slice(0,commentNumber);
-            for(let comment of comments){
+            for (let comment of comments) {
                 commentListElement.appendChild(createCommentElement(comment, document));
             }
         }
-        if(link !== "null"){
+        if (link !== "null") {
             const logoutElement = document.createElement('div');
             logoutElement.innerHTML = `Click <a href=${link}>here</a> to logout!`;
             commentListElement.appendChild(logoutElement);
