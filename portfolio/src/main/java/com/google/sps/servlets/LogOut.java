@@ -1,7 +1,8 @@
 package com.google.sps.servlets;
 
 import com.google.appengine.api.datastore.*;
-import java.io.*;
+import java.io.IOException;
+import java.io.PrintWriter;
 import com.google.gson.Gson;
 import com.google.appengine.api.users.*;
 import javax.servlet.annotation.WebServlet;
