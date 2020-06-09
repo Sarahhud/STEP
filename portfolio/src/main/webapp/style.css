@@ -1,6 +1,6 @@
 #content {
   align-items: center;
-  font-family: "Bradley", cursive;
+  font-family: "Bradley";
   margin-left: auto;
   margin-right: auto;
   text-align: center;
@@ -70,7 +70,7 @@ body {
 }
 
 p.comment {
-  background-color: rgb(250, 244, 244);
+  background-color: white;
   border-color: #6a9ccf;
   border-style: ridge;
   font-family: sans-serif;

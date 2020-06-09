@@ -30,13 +30,15 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-function loaded(){
+async function loaded(){
     let commentNumber = -1;
-    fetch('/comment-choice').then(response => response.json()).then((number) => {
+    await fetch('/comment-choice').then(response => response.json()).then((number) => {
         commentNumber = parseInt(number);
-    }); 
-    fetch('/data').then(response => response.json()).then((comments) => {
-        const commentListElement = document.getElementById('comment-history');      
+    });
+
+    fetch('/data').then(response => response.json()).then(async (comments) => {
+        const commentListElement = document.getElementById('comment-history');  
+        let link = await getLink();    
         if(commentNumber===-1){
             for(let comment of comments){
                 commentListElement.appendChild(createCommentElement(comment, document));
@@ -48,6 +50,17 @@ function loaded(){
                 commentListElement.appendChild(createCommentElement(comment, document));
             }
         }
+        if(link !== "null"){
+            const logoutElement = document.createElement('div');
+            logoutElement.innerHTML = `Click <a href=${link}>here</a> to logout!`;
+            commentListElement.appendChild(logoutElement);
+        }
+    });
+}
+
+function getLink(){
+    return fetch('/log-out').then(response => response.json()).then((url) => {
+        return String(url);
     });
 }
 
@@ -56,7 +69,7 @@ function createCommentElement(comment, document) {
   commentElement.className = 'comment';
 
   const authorElement = document.createElement('div');
-  authorElement.innerText = comment.author;
+  authorElement.innerText = comment.email;
 
   const titleElement = document.createElement('div');
   titleElement.innerText = comment.title;
