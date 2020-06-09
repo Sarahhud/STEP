@@ -21,7 +21,7 @@ public class LogOut extends HttpServlet {
     Gson gson = new Gson();
     response.setContentType("application/json;");
     // Only logged-in users can post messages
-   if (!userService.isUserLoggedIn()) {
+    if (!userService.isUserLoggedIn()) {
       link = null;
     }
     else{
