@@ -38,7 +38,7 @@ async function loaded(){
 
     fetch('/data').then(response => response.json()).then(async (comments) => {
         const commentListElement = document.getElementById('comment-history');  
-        let link = await getLink();    
+        const link = await getLink();    
         if (commentNumber === -1) {
             for (let comment of comments) {
                 commentListElement.appendChild(createCommentElement(comment, document));
