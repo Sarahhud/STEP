@@ -30,11 +30,12 @@ function addRandomGreeting() {
   greetingContainer.innerText = greeting;
 }
 
-function loaded(){
+async function loaded(){
     let commentNumber = -1;
     fetch('/comment-choice').then(response => response.json()).then((number) => {
         commentNumber = parseInt(number);
     }); 
+    await fetchBlobstoreUrlAndShowForm();
     fetch('/data').then(response => response.json()).then((comments) => {
         const commentListElement = document.getElementById('comment-history');      
         if(commentNumber===-1){
@@ -65,6 +66,10 @@ function createCommentElement(comment, document) {
   textElement.className = 'text';
   textElement.innerText = comment.text;
 
+//   const textElement = document.createElement('div');
+//   textElement.className = 'text';
+//   textElement.innerText = comment.text;
+
   const deleteButtonElement = document.createElement('button');
   deleteButtonElement.innerText = 'Delete';
   deleteButtonElement.addEventListener('click', () => {
@@ -85,4 +90,14 @@ function deleteComment(comment) {
   const params = new URLSearchParams();
   params.append('id', comment.id);
   fetch('/delete-comment', {method: 'POST', body: params});
+}
+
+async function fetchBlobstoreUrlAndShowForm() {
+  fetch('/blobstore-upload-url').then((response) => {
+        return response.text();
+    }).then((imageUploadUrl) => {
+        const messageForm = document.getElementById('my-form');
+        messageForm.action = imageUploadUrl;
+        messageForm.classList.remove('hidden');
+    });
 }
