@@ -6,13 +6,13 @@ public final class Comment {
   private final String title;
   private final long timestamp;
   private final String text;
-  private final String author;
+  private final String email;
 
-  public Comment(long id, String title, long timestamp, String author, String text) {
+  public Comment(long id, String title, long timestamp, String text, String email) {
     this.id = id;
     this.title = title;
     this.timestamp = timestamp;
     this.text = text;
-    this.author = author;
+    this.email = email;
   }
 }
