@@ -1,10 +1,15 @@
 package com.google.sps.servlets;
 
-import com.google.appengine.api.datastore.*;
+import com.google.appengine.api.datastore.DatastoreService;
+import com.google.appengine.api.datastore.DatastoreServiceFactory;
+import com.google.appengine.api.datastore.Entity;
+import com.google.appengine.api.datastore.PreparedQuery;
+import com.google.appengine.api.datastore.Query;
 import java.io.IOException;
 import java.io.PrintWriter;
 import com.google.gson.Gson;
-import com.google.appengine.api.users.*;
+import com.google.appengine.api.users.UserService;
+import com.google.appengine.api.users.UserServiceFactory;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -22,9 +27,9 @@ public class LogOut extends HttpServlet {
     response.setContentType("application/json;");
     // Only logged-in users can post messages
     if (!userService.isUserLoggedIn()) {
-      link = null;
+      link = "";
     }
-    else{
+    else {
       link = userService.createLogoutURL("/index.html");
     }
     response.getWriter().println(gson.toJson(link));

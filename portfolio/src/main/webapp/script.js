@@ -50,7 +50,7 @@ async function loaded(){
                 commentListElement.appendChild(createCommentElement(comment, document));
             }
         }
-        if (link !== "null") {
+        if (link) {
             const logoutElement = document.createElement('div');
             logoutElement.innerHTML = `Click <a href=${link}>here</a> to logout!`;
             commentListElement.appendChild(logoutElement);
