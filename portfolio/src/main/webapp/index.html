@@ -75,8 +75,6 @@
       <div id="comment-box">
         <h4>Comment Box</h4>
         <form id="my-form" class="hidden" enctype="multipart/form-data" method="POST">
-          <div>Name:</div>
-          <input type="text" name="author"/>
           <div>Title:</div>
           <input type="text" name="title"/>
           <div>Comment:</div>
@@ -84,7 +82,7 @@
           <br/>
           <div>Upload an image:</div>
           <input type="file" name="image">
-          <input type="submit">
+          <input type="submit" value="Add Comment!">
         </form>
         <form action="/comment-choice" method="POST">
           <p>How many comments would you like displayed?</p>

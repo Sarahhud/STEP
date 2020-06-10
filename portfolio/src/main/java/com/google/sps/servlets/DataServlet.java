@@ -46,14 +46,13 @@ public class DataServlet extends HttpServlet {
       long id = entity.getKey().getId();
       String title = (String) entity.getProperty("title");
       long timestamp = (long) entity.getProperty("timestamp");
-      String author = (String) entity.getProperty("author");
       String text = (String) entity.getProperty("text");
+      String email = (String) entity.getProperty("email");
       String url = null;
       if(entity.getProperty("image") != null){
         url = (String) entity.getProperty("image");
       }
-
-      Comment comment = new Comment(id, title, timestamp, author, text, url);
+      Comment comment = new Comment(id, title, timestamp, text, email, url);
       comments.add(comment);
     }
 
