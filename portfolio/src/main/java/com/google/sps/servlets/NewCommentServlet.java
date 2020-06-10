@@ -39,7 +39,7 @@ public class NewCommentServlet extends HttpServlet {
     commentEntity.setProperty("timestamp", timestamp);
     commentEntity.setProperty("text", text);
     commentEntity.setProperty("author", author);
-    if(imageUrl != null){
+    if (imageUrl != null) {
         commentEntity.setProperty("image", imageUrl);
     }
 
