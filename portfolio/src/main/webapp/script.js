@@ -111,8 +111,8 @@ function deleteComment(comment) {
 async function fetchBlobstoreUrlAndShowForm() {
   fetch('/blobstore-upload-url').then(response => response.text())
      .then((imageUploadUrl) => {
-     const messageForm = document.getElementById('my-form');
-     messageForm.action = String(imageUploadUrl);
-     messageForm.classList.remove('hidden');
-    });
+        const messageForm = document.getElementById('my-form');
+        messageForm.action = String(imageUploadUrl);
+        messageForm.classList.remove('hidden');
+    }); 
 }
