@@ -49,7 +49,7 @@ public class DataServlet extends HttpServlet {
       String text = (String) entity.getProperty("text");
       String email = (String) entity.getProperty("email");
       String url = null;
-      if(entity.getProperty("image") != null){
+      if (entity.getProperty("image") != null) {
         url = (String) entity.getProperty("image");
       }
       Comment comment = new Comment(id, title, timestamp, text, email, url);
