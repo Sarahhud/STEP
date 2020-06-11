@@ -76,8 +76,7 @@ function createCommentElement(comment, document) {
   textElement.className = 'text';
   textElement.innerText = comment.text;
 
-  picElement = null;
-  console.log(comment.url);
+  let picElement = null;
   if (comment.url) {
       picElement = document.createElement('div');
       picElement.className = 'gallery';
@@ -110,11 +109,10 @@ function deleteComment(comment) {
 }
 
 async function fetchBlobstoreUrlAndShowForm() {
-  fetch('/blobstore-upload-url').then((response) => {
-        return response.text();
-    }).then((imageUploadUrl) => {
-        const messageForm = document.getElementById('my-form');
-        messageForm.action = imageUploadUrl;
-        messageForm.classList.remove('hidden');
+  fetch('/blobstore-upload-url').then(response => response.text())
+     .then((imageUploadUrl) => {
+     const messageForm = document.getElementById('my-form');
+     messageForm.action = String(imageUploadUrl);
+     messageForm.classList.remove('hidden');
     });
 }
