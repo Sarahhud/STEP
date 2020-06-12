@@ -35,7 +35,7 @@ async function loaded(){
     await fetch('/comment-choice').then(response => response.json()).then((number) => {
         commentNumber = parseInt(number);
     });
-
+    await fetchBlobstoreUrlAndShowForm();
     fetch('/data').then(response => response.json()).then(async (comments) => {
         const commentListElement = document.getElementById('comment-history');  
         const link = await getLink();    
@@ -76,6 +76,13 @@ function createCommentElement(comment, document) {
   textElement.className = 'text';
   textElement.innerText = comment.text;
 
+  let picElement = null;
+  if (comment.url) {
+      picElement = document.createElement('div');
+      picElement.className = 'gallery';
+      picElement.innerHTML = `<img src=${comment.url}>`;
+    }
+
   const deleteButtonElement = document.createElement('button');
   deleteButtonElement.innerText = 'Delete';
   deleteButtonElement.addEventListener('click', () => {
@@ -88,6 +95,9 @@ function createCommentElement(comment, document) {
   commentElement.appendChild(authorElement);
   commentElement.appendChild(titleElement);
   commentElement.appendChild(textElement);
+  if (picElement) {
+      commentElement.appendChild(picElement);
+  }
   return commentElement;
 }
 
@@ -96,4 +106,13 @@ function deleteComment(comment) {
   const params = new URLSearchParams();
   params.append('id', comment.id);
   fetch('/delete-comment', {method: 'POST', body: params});
+}
+
+async function fetchBlobstoreUrlAndShowForm() {
+  fetch('/blobstore-upload-url').then(response => response.text())
+  .then((imageUploadUrl) => {
+        const messageForm = document.getElementById('my-form');
+        messageForm.action = String(imageUploadUrl);
+        messageForm.classList.remove('hidden');
+    }); 
 }
