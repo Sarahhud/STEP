@@ -42,6 +42,7 @@ public final class MeetingRequest {
     return Collections.unmodifiableCollection(attendees);
   }
 
+
   /**
    * Returns a read-only copy of the people who are optional to attend this meeting.
    */
