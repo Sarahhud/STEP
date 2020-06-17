@@ -29,66 +29,91 @@ public final class FindMeetingQuery {
         final int meetingTimeLength = (int) request.getDuration();
         final int numberOfConflictingMeetings = events.size();
         final Collection<String> attendees = request.getAttendees();
+        final Collection<String> optionalAttendees = request.getOptionalAttendees();
         Collection<TimeRange> openTimeSlots = null;
+        Collection<TimeRange> openTimeSlotsForOptionalAttendees = null;
+        Collection<TimeRange> openTimeSlotsForAllAttendees = new ArrayList<TimeRange>();
         Collection<TimeRange> removeTimeSlots = null;
         Collection<TimeRange> addTimeSlots = null;
 
-        openTimeSlots = checkEdgeCases(attendees, meetingTimeLength, numberOfConflictingMeetings);
+        openTimeSlots = checkEdgeCases(attendees, optionalAttendees, meetingTimeLength, numberOfConflictingMeetings);
         if (openTimeSlots != null) {
             return openTimeSlots;
         }
-
         openTimeSlots = new ArrayList<TimeRange>();
         openTimeSlots.add(TimeRange.WHOLE_DAY);
+        openTimeSlotsForOptionalAttendees = new ArrayList<TimeRange>();
+        openTimeSlotsForOptionalAttendees.add(TimeRange.WHOLE_DAY);
 
         for (Event event:events) {
-            if (!Collections.disjoint(event.getAttendees(), attendees)) { //Checks to make sure that the attendees in the event are actually needed in the meeting. 
-                TimeRange timeOfEvent = event.getWhen(); 
-                removeTimeSlots = new ArrayList<TimeRange>();
-                addTimeSlots = null;
-                for (TimeRange openTimeSlot : openTimeSlots) { 
-                    if (openTimeSlot.contains(timeOfEvent)) {
-                        addTimeSlots = createNewOpenTimeSlotsAroundMeeting(timeOfEvent, openTimeSlot, meetingTimeLength);
-                        removeTimeSlots.add(openTimeSlot);
+            TimeRange timeOfEvent = event.getWhen();
+            if (attendees.containsAll(event.getAttendees())) { //Checks to make sure that the attendees in the event are actually needed in the meeting.  
+                openTimeSlots = checkForConflictsInSchedule(openTimeSlots, timeOfEvent, meetingTimeLength);
+            }
+            else if (optionalAttendees.containsAll(event.getAttendees())) {
+                openTimeSlotsForOptionalAttendees = checkForConflictsInSchedule(openTimeSlotsForOptionalAttendees, timeOfEvent, meetingTimeLength);
+            }
+        }
+        if (!openTimeSlotsForOptionalAttendees.isEmpty()) {
+            for (TimeRange meeting : openTimeSlots) {
+                for (TimeRange optionalAttendeeMeeting : openTimeSlotsForOptionalAttendees) {
+                    System.out.println(optionalAttendeeMeeting);
+                    if (optionalAttendeeMeeting.contains(meeting)) {
+                        openTimeSlotsForAllAttendees.add(meeting);
                     }
-                    else {
-                        if (openTimeSlot.contains(timeOfEvent.start()) || openTimeSlot.contains(timeOfEvent.end())) {
-                            addTimeSlots = createNewOpenTimeSlotsBeforeAndAfterMeeting(timeOfEvent, openTimeSlot, meetingTimeLength);
-                             removeTimeSlots.add(openTimeSlot);
-                        }
-                    }
-                }
-
-                openTimeSlots.removeAll(removeTimeSlots);
-                if(addTimeSlots != null){
-                    openTimeSlots.addAll(addTimeSlots);
                 }
             }
+        }
+        if (!openTimeSlotsForAllAttendees.isEmpty()) {
+            return openTimeSlotsForAllAttendees;
+        }
+        else if (attendees.isEmpty() && !optionalAttendees.isEmpty()) {
+            return openTimeSlotsForOptionalAttendees;
         }
         return openTimeSlots;
     }
 
-    public Collection<TimeRange> checkEdgeCases(Collection<String> attendees, int meetingTimeLength, int numberOfConflictingMeetings){
+    public Collection<TimeRange> checkForConflictsInSchedule (Collection<TimeRange> openTimeSlots, TimeRange timeOfEvent, int meetingTimeLength) { 
+        Collection<TimeRange> removeTimeSlots = new ArrayList<TimeRange>();
+        Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
+        for (TimeRange openTimeSlot : openTimeSlots) { 
+            if (openTimeSlot.contains(timeOfEvent)) {
+                addTimeSlots = createNewOpenTimeSlotsAroundMeeting(timeOfEvent, openTimeSlot, meetingTimeLength);
+                removeTimeSlots.add(openTimeSlot);
+            }
+            else {
+                if (openTimeSlot.contains(timeOfEvent.start()) || openTimeSlot.contains(timeOfEvent.end())) {
+                    addTimeSlots = createNewOpenTimeSlotsBeforeAndAfterMeeting(timeOfEvent, openTimeSlot, meetingTimeLength);
+                    removeTimeSlots.add(openTimeSlot);
+                }
+            }
+        }
+
+        openTimeSlots.removeAll(removeTimeSlots);
+        if (addTimeSlots != null) {
+            openTimeSlots.addAll(addTimeSlots);
+        }
+        return openTimeSlots;
+    }
+
+    public Collection<TimeRange> checkEdgeCases (Collection<String> attendees, Collection<String> optionalAttendees, int meetingTimeLength, int numberOfConflictingMeetings) {
         Collection<TimeRange> openSlots = null;
-        if (attendees.isEmpty()) {
+        if (attendees.isEmpty() && optionalAttendees.isEmpty()) {
             openSlots = Arrays.asList(TimeRange.WHOLE_DAY);
             return openSlots;
         }
-
         if (meetingTimeLength > TimeRange.WHOLE_DAY.duration()) {
             openSlots = Arrays.asList();
             return openSlots;
         }
-
         if (numberOfConflictingMeetings < 1) {
             openSlots = Arrays.asList(TimeRange.WHOLE_DAY);
             return openSlots;
         }
-
         return openSlots;
     }
 
-    public Collection<TimeRange> createNewOpenTimeSlotsAroundMeeting(TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
+    public Collection<TimeRange> createNewOpenTimeSlotsAroundMeeting (TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
         Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
         if (timeOfEvent.start() - openTimeSlot.start() >= meetingTimeLength) {
             addTimeSlots.add(TimeRange.fromStartEnd(openTimeSlot.start(), timeOfEvent.start(), false)); 
@@ -104,7 +129,7 @@ public final class FindMeetingQuery {
         return addTimeSlots;
     }
 
-    public Collection<TimeRange> createNewOpenTimeSlotsBeforeAndAfterMeeting(TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
+    public Collection<TimeRange> createNewOpenTimeSlotsBeforeAndAfterMeeting (TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
         Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
         if (openTimeSlot.contains(timeOfEvent.start())) {
             if (timeOfEvent.start() - openTimeSlot.start() >= meetingTimeLength) {
