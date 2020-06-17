@@ -22,58 +22,103 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
-import java.io.*;
 
 public final class FindMeetingQuery {
-  public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
 
-    if (request.getAttendees().isEmpty()) {
-        Collection<TimeRange> range = Arrays.asList(TimeRange.WHOLE_DAY);
-        return range;
-    }
-    long meetingTime = request.getDuration();
-    Collection<String> attendees = request.getAttendees();
-    if (meetingTime > TimeRange.WHOLE_DAY.duration()) {
-        Collection<TimeRange> range = Arrays.asList();
-        return range;
-    }
-    if (events.size() < 1){
-        Collection<TimeRange> range = Arrays.asList(TimeRange.WHOLE_DAY);
-        return range;
-    }
+    public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+        final int meetingTimeLength = (int) request.getDuration();
+        final int numberOfConflictingMeetings = events.size();
+        final Collection<String> attendees = request.getAttendees();
+        Collection<TimeRange> openTimeSlots = null;
+        Collection<TimeRange> removeTimeSlots = null;
+        Collection<TimeRange> addTimeSlots = null;
 
-    Collection<TimeRange> openTimeSlots = new ArrayList<TimeRange>();
-    Collection<TimeRange> removeTimeSlots = new ArrayList<TimeRange>();
-    openTimeSlots.add(TimeRange.WHOLE_DAY);
+        openTimeSlots = checkEdgeCases(attendees, meetingTimeLength, numberOfConflictingMeetings);
+        if (openTimeSlots != null) {
+            return openTimeSlots;
+        }
 
-    for(Event event:events){
-        if(!Collections.disjoint(event.getAttendees(), attendees)){
-            TimeRange timeOfEvent = event.getWhen();
-            for(TimeRange openTimeSlot : openTimeSlots){ 
-                System.out.println(openTimeSlot.start() + " " + openTimeSlot.end());
-                if(openTimeSlot.contains(timeOfEvent)){
-                    System.out.println("Event in open time block!");
-                    if (timeOfEvent.start() - openTimeSlot.start() >= meetingTime) {
-                        TimeRange a = TimeRange.fromStartEnd(openTimeSlot.start(), timeOfEvent.start(), false); 
-                        openTimeSlots.add(a);
+        openTimeSlots = new ArrayList<TimeRange>();
+        openTimeSlots.add(TimeRange.WHOLE_DAY);
+
+        for (Event event:events) {
+            if (!Collections.disjoint(event.getAttendees(), attendees)) { //Checks to make sure that the attendees in the event are actually needed in the meeting. 
+                TimeRange timeOfEvent = event.getWhen(); 
+                removeTimeSlots = new ArrayList<TimeRange>();
+                addTimeSlots = null;
+                for (TimeRange openTimeSlot : openTimeSlots) { 
+                    if (openTimeSlot.contains(timeOfEvent)) {
+                        addTimeSlots = createNewOpenTimeSlotsAroundMeeting(timeOfEvent, openTimeSlot, meetingTimeLength);
+                        removeTimeSlots.add(openTimeSlot);
                     }
-                    if (openTimeSlot.end() - timeOfEvent.end() >= meetingTime) {
-                        if(openTimeSlot.end() == TimeRange.END_OF_DAY){
-                            TimeRange b = TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), true);
-                            openTimeSlots.add(b);
-                        } 
-                        else {
-                            TimeRange c = TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), false); 
-                            openTimeSlots.add(c);
+                    else {
+                        if (openTimeSlot.contains(timeOfEvent.start()) || openTimeSlot.contains(timeOfEvent.end())) {
+                            addTimeSlots = createNewOpenTimeSlotsBeforeAndAfterMeeting(timeOfEvent, openTimeSlot, meetingTimeLength);
+                             removeTimeSlots.add(openTimeSlot);
                         }
                     }
-                    removeTimeSlots.add(openTimeSlot);
                 }
-                //What if it overlaps??
+
+                openTimeSlots.removeAll(removeTimeSlots);
+                if(addTimeSlots != null){
+                    openTimeSlots.addAll(addTimeSlots);
+                }
             }
-            openTimeSlots.removeAll(removeTimeSlots);
         }
+        return openTimeSlots;
     }
-    return openTimeSlots;
-  }
+
+    public Collection<TimeRange> checkEdgeCases(Collection<String> attendees, int meetingTimeLength, int numberOfConflictingMeetings){
+        Collection<TimeRange> openSlots = null;
+        if (attendees.isEmpty()) {
+            openSlots = Arrays.asList(TimeRange.WHOLE_DAY);
+            return openSlots;
+        }
+
+        if (meetingTimeLength > TimeRange.WHOLE_DAY.duration()) {
+            openSlots = Arrays.asList();
+            return openSlots;
+        }
+
+        if (numberOfConflictingMeetings < 1) {
+            openSlots = Arrays.asList(TimeRange.WHOLE_DAY);
+            return openSlots;
+        }
+
+        return openSlots;
+    }
+
+    public Collection<TimeRange> createNewOpenTimeSlotsAroundMeeting(TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
+        Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
+        if (timeOfEvent.start() - openTimeSlot.start() >= meetingTimeLength) {
+            addTimeSlots.add(TimeRange.fromStartEnd(openTimeSlot.start(), timeOfEvent.start(), false)); 
+        }
+        if (openTimeSlot.end() - timeOfEvent.end() >= meetingTimeLength) {
+            if (openTimeSlot.end() == TimeRange.END_OF_DAY) {
+                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), true));
+            } 
+            else {
+                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), false)); 
+            }
+        }
+        return addTimeSlots;
+    }
+
+    public Collection<TimeRange> createNewOpenTimeSlotsBeforeAndAfterMeeting(TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
+        Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
+        if (openTimeSlot.contains(timeOfEvent.start())) {
+            if (timeOfEvent.start() - openTimeSlot.start() >= meetingTimeLength) {
+                addTimeSlots.add(TimeRange.fromStartEnd(openTimeSlot.start(), timeOfEvent.start(), false)); 
+            }
+        }
+        if (openTimeSlot.contains(timeOfEvent.end())) {
+            if (openTimeSlot.end() == TimeRange.END_OF_DAY) {
+                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), true));
+            } 
+            else {
+                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), false)); 
+            }
+        }
+        return addTimeSlots;
+    }
 }
