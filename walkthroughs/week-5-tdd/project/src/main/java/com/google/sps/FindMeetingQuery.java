@@ -23,6 +23,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
 
+/**
+ * Class to find a list of possible meeting times based on a request (Required attendees and length of event).
+ * Also considers optional attendees and returns the timeframes where everyone can meet if applicable.
+ */
 public final class FindMeetingQuery {
 
     public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
@@ -57,7 +61,6 @@ public final class FindMeetingQuery {
         if (!openTimeSlotsForOptionalAttendees.isEmpty()) {
             for (TimeRange meeting : openTimeSlots) {
                 for (TimeRange optionalAttendeeMeeting : openTimeSlotsForOptionalAttendees) {
-                    System.out.println(optionalAttendeeMeeting);
                     if (optionalAttendeeMeeting.contains(meeting)) {
                         openTimeSlotsForAllAttendees.add(meeting);
                     }
