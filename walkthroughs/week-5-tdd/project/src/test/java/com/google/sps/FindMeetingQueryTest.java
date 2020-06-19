@@ -335,7 +335,7 @@ public final class FindMeetingQueryTest {
     Assert.assertEquals(expected, actual);
   }
 
-    @Test
+  @Test
   public void justEnoughRoomForMandatoryAtendees() {
     // Have one person, and one optional atendee, but make it so that there is just enough room at one point in the day to
     // have the meeting, but the optional person does not have enough open time to be considered.
