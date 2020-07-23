@@ -19,9 +19,12 @@ import java.util.LinkedList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.stream.Collectors;
 import java.util.List;
 import java.util.Set;
 import java.util.Iterator;
+import java.util.BitSet;
+import org.paukov.combinatorics3.Generator;
 
 /**
  * Class to find a list of possible meeting times based on a request (Required attendees and length of event).
@@ -29,82 +32,54 @@ import java.util.Iterator;
  */
 public final class FindMeetingQuery {
 
+    /*
+     * Main method, loops through the day's scheduled events to try and find an optimal meeting time for the given request.
+     */
     public Collection<TimeRange> query(Collection<Event> events, MeetingRequest request) {
+        final int sizeOfBitSet = (int) ((int) (TimeRange.END_OF_DAY + 1 - TimeRange.START_OF_DAY) / 5);
         final int meetingTimeLength = (int) request.getDuration();
         final int numberOfConflictingMeetings = events.size();
         final Collection<String> attendees = request.getAttendees();
         final Collection<String> optionalAttendees = request.getOptionalAttendees();
         Collection<TimeRange> openTimeSlots = null;
-        Collection<TimeRange> openTimeSlotsForOptionalAttendees = null;
-        Collection<TimeRange> openTimeSlotsForAllAttendees = new ArrayList<TimeRange>();
-        Collection<TimeRange> removeTimeSlots = null;
-        Collection<TimeRange> addTimeSlots = null;
+        ArrayList<TimeRange> mandatoryAttendeeMeetings = new ArrayList<TimeRange>();
+        ArrayList<BitSet> options = new ArrayList<BitSet>();
+        BitSet allOpenings = new BitSet(sizeOfBitSet);
+
+        for (int i = 0; i <= sizeOfBitSet; i++) {
+            allOpenings.set(i * 5 + TimeRange.START_OF_DAY);
+        }
 
         openTimeSlots = checkEdgeCases(
             attendees, optionalAttendees, meetingTimeLength, numberOfConflictingMeetings);
         if (openTimeSlots != null) {
             return openTimeSlots;
         }
-        openTimeSlots = new ArrayList<TimeRange>();
-        openTimeSlots.add(TimeRange.WHOLE_DAY);
-        openTimeSlotsForOptionalAttendees = new ArrayList<TimeRange>();
-        openTimeSlotsForOptionalAttendees.add(TimeRange.WHOLE_DAY);
 
-        for (Event event:events) {
+        for (Event event : events) {
             TimeRange timeOfEvent = event.getWhen();
             //Checks to make sure that the attendees in the event are actually needed in the meeting.
-            if (attendees.containsAll(event.getAttendees())) {   
-                openTimeSlots = checkForConflictsInSchedule(openTimeSlots, timeOfEvent, meetingTimeLength);
+            if (attendees.containsAll(event.getAttendees())) {   //Looks at people in meeting request vs people in the daily schedule of.
+                mandatoryAttendeeMeetings.add(event.getWhen());
             }
-            else if (optionalAttendees.containsAll(event.getAttendees())) {
-                openTimeSlotsForOptionalAttendees = checkForConflictsInSchedule(
-                    openTimeSlotsForOptionalAttendees, timeOfEvent, meetingTimeLength);
-            }
-        }
-        if (!openTimeSlotsForOptionalAttendees.isEmpty()) {
-            for (TimeRange meeting : openTimeSlots) {
-                for (TimeRange optionalAttendeeMeeting : openTimeSlotsForOptionalAttendees) {
-                    if (optionalAttendeeMeeting.contains(meeting)) {
-                        openTimeSlotsForAllAttendees.add(meeting);
-                    }
-                }
+            if (optionalAttendees.containsAll(event.getAttendees())) {
+                ArrayList<TimeRange> temp = new ArrayList<TimeRange>();
+                temp.add(event.getWhen());
+                BitSet tempBit = timeToBit(temp, sizeOfBitSet * 5);
+                options.add(tempBit);
             }
         }
-        if (!openTimeSlotsForAllAttendees.isEmpty()) {
-            return openTimeSlotsForAllAttendees;
-        }
-        else if (attendees.isEmpty() && !optionalAttendees.isEmpty()) {
-            return openTimeSlotsForOptionalAttendees;
-        }
-        return openTimeSlots;
+
+        BitSet mandatoryAttendeeOpenings = timeToBit(mandatoryAttendeeMeetings, sizeOfBitSet);
+        BitSet timesWithOptionalAttendees = optionalMeetingFinder(mandatoryAttendeeOpenings, sizeOfBitSet, meetingTimeLength, options);
+        return examineAllOptions(timesWithOptionalAttendees, allOpenings, mandatoryAttendeeOpenings, meetingTimeLength);
+
     }
 
-    public Collection<TimeRange> checkForConflictsInSchedule (
-        Collection<TimeRange> openTimeSlots, TimeRange timeOfEvent, int meetingTimeLength) { 
-        Collection<TimeRange> removeTimeSlots = new ArrayList<TimeRange>();
-        Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
-        for (TimeRange openTimeSlot : openTimeSlots) { 
-            if (openTimeSlot.contains(timeOfEvent)) {
-                addTimeSlots = createNewOpenTimeSlotsAroundMeeting(
-                    timeOfEvent, openTimeSlot, meetingTimeLength);
-                removeTimeSlots.add(openTimeSlot);
-            }
-            else if (openTimeSlot.contains(timeOfEvent.start()) || openTimeSlot.contains(timeOfEvent.end())) {
-                addTimeSlots = createNewOpenTimeSlotsBeforeAndAfterMeeting(
-                    timeOfEvent, openTimeSlot, meetingTimeLength);
-                removeTimeSlots.add(openTimeSlot);
-            }
-        }
-
-        openTimeSlots.removeAll(removeTimeSlots);
-        if (addTimeSlots != null) {
-            openTimeSlots.addAll(addTimeSlots);
-        }
-        return openTimeSlots;
-    }
-
-    public Collection<TimeRange> checkEdgeCases (
-        Collection<String> attendees, Collection<String> optionalAttendees, 
+    /*
+     * Before examining open meeting times, first checks edge cases.
+     */
+    public Collection<TimeRange> checkEdgeCases( Collection<String> attendees, Collection<String> optionalAttendees, 
         int meetingTimeLength, int numberOfConflictingMeetings) {
         Collection<TimeRange> openSlots = null;
         if (attendees.isEmpty() && optionalAttendees.isEmpty()) {
@@ -122,39 +97,104 @@ public final class FindMeetingQuery {
         return openSlots;
     }
 
-    public Collection<TimeRange> createNewOpenTimeSlotsAroundMeeting (
-        TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
-        Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
-        if (timeOfEvent.start() - openTimeSlot.start() >= meetingTimeLength) {
-            addTimeSlots.add(TimeRange.fromStartEnd(openTimeSlot.start(), timeOfEvent.start(), false)); 
+    /*
+     * Examines all options, ones for mandatory attendees, and ones with optional attendees and returns a list
+     * of timeranges that works best.
+     */
+    public Collection<TimeRange> examineAllOptions(BitSet timesWithOptionalAttendees, BitSet allOpenings, BitSet mandatoryAttendeeOpenings, int meetingTimeLength) {
+        Collection<TimeRange> finalMeetingTimes = new ArrayList<TimeRange>();
+        int addS, addE, start, end;
+
+        if (timesWithOptionalAttendees.length() > 1) {
+            allOpenings.and(timesWithOptionalAttendees);
+        } 
+        else if (timesWithOptionalAttendees.length() == 1) {
+            allOpenings.clear();
         }
-        if (openTimeSlot.end() - timeOfEvent.end() >= meetingTimeLength) {
-            if (openTimeSlot.end() == TimeRange.END_OF_DAY) {
-                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), true));
-            } 
-            else {
-                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), false)); 
+        else {
+            allOpenings.andNot(mandatoryAttendeeOpenings);
+        }   
+
+        int[] finalOpenings = allOpenings.stream()
+                .filter(s -> (s == 0 || (!allOpenings.get(s - 5)) || !allOpenings.get(s + 5))).toArray();  
+
+        if(finalOpenings.length == 1) {
+            return finalMeetingTimes;
+        }
+        for (int i = 0; i < finalOpenings.length; i += 2) {
+            addS = 0;
+            addE = 0;
+            if (finalOpenings[i] != TimeRange.START_OF_DAY)
+                addS = 5;
+            if (finalOpenings[i + 1] < TimeRange.END_OF_DAY)
+                addE = 5;
+            start = finalOpenings[i] - addS;
+            end = finalOpenings[i + 1] + addE;
+            if (end - start >= meetingTimeLength) {
+                finalMeetingTimes.add(TimeRange.fromStartEnd(start, end, false));
             }
         }
-        return addTimeSlots;
+        return finalMeetingTimes;
     }
 
-    public Collection<TimeRange> createNewOpenTimeSlotsBeforeAndAfterMeeting (
-        TimeRange timeOfEvent, TimeRange openTimeSlot, int meetingTimeLength) {
-        Collection<TimeRange> addTimeSlots = new ArrayList<TimeRange>();
-        if (openTimeSlot.contains(timeOfEvent.start())) {
-            if (timeOfEvent.start() - openTimeSlot.start() >= meetingTimeLength) {
-                addTimeSlots.add(TimeRange.fromStartEnd(openTimeSlot.start(), timeOfEvent.start(), false)); 
-            }
+    /*
+     * Converts time ranges to bitsets.
+     */
+    public BitSet timeToBit(ArrayList<TimeRange> meetings, int size) {
+        BitSet oneSet = new BitSet(size);
+        for (TimeRange meeting : meetings) {
+            oneSet.set(meeting.start(), meeting.end() + 1);
         }
-        if (openTimeSlot.contains(timeOfEvent.end())) {
-            if (openTimeSlot.end() == TimeRange.END_OF_DAY) {
-                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), true));
-            } 
-            else {
-                addTimeSlots.add(TimeRange.fromStartEnd(timeOfEvent.end(), openTimeSlot.end(), false)); 
-            }
-        }
-        return addTimeSlots;
+        return oneSet;
     }
+    
+    /*
+     * Combines multiple bit sets into one.
+     */
+    public BitSet severalToOne(List<BitSet> sets, BitSet openings, int size) {
+        BitSet temp = (BitSet) openings.clone();
+        for (BitSet bit : sets) {
+            temp.or(bit);
+        }
+        temp.flip(0, size + 1);
+        return temp;
+    }
+
+    /*
+     * Checks combinations of meetings for optional attendees combined with mandatory attendees schedules.
+     */
+    public BitSet optionalMeetingFinder(BitSet singleOpenings, int size, int duration, List<BitSet> options) {
+        // create a schedule bit list for all optional attendees
+        List<List<BitSet>> subsets = Generator.subset(options).simple().stream()
+                .collect(Collectors.<List<BitSet>>toList());
+
+        boolean isValid = false;
+        int bestOption = 0;
+        BitSet singleSet = new BitSet(size * 5);
+        BitSet tempOptions = new BitSet(size * 5);
+
+        // loop through to see what schedule fits most attendees
+        for (List<BitSet> set : subsets) {
+            isValid = false;
+            if (set.size() > 0) {
+                singleSet = severalToOne(set, singleOpenings, size* 5);
+                BitSet temp = (BitSet) singleSet.clone();
+                int[] check = temp.stream().filter(s -> temp.nextClearBit(s) - s + 2 >= duration).toArray();
+                if (check.length > 0) { // ensures that optional meetinf slot >= to required meeting length
+                    isValid = true;
+                }
+            }
+            if (isValid && set.size() > bestOption) {
+                bestOption = set.size();
+                tempOptions = singleSet;
+            }
+        }
+
+        if (singleOpenings.isEmpty() && bestOption == 1) {
+            tempOptions.clear();
+            tempOptions.set(0);
+        }
+        return tempOptions;
+    }
+
 }

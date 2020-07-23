@@ -308,7 +308,7 @@ public final class FindMeetingQueryTest {
   public void everyAttendeeIsConsideredAsWellAsOptionalWithAvailability() {
     // Have each person have different events. We should see two options because each person has
     // split the restricted times, and the third time is not returned because the optional attendee
-    // is free for two appointment times. 
+    // is only free for two appointment times. 
     //
     // Events  :       |--A--|     |--B--|
     // Optional:             |--C--|
