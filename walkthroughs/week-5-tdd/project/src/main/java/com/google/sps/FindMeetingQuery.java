@@ -79,7 +79,7 @@ public final class FindMeetingQuery {
     /*
      * Before examining open meeting times, first checks edge cases.
      */
-    public Collection<TimeRange> checkEdgeCases ( Collection<String> attendees, Collection<String> optionalAttendees, 
+    public Collection<TimeRange> checkEdgeCases( Collection<String> attendees, Collection<String> optionalAttendees, 
         int meetingTimeLength, int numberOfConflictingMeetings) {
         Collection<TimeRange> openSlots = null;
         if (attendees.isEmpty() && optionalAttendees.isEmpty()) {
@@ -126,7 +126,7 @@ public final class FindMeetingQuery {
             addE = 0;
             if (finalOpenings[i] != TimeRange.START_OF_DAY)
                 addS = 5;
-            if (!(finalOpenings[i + 1] >= TimeRange.END_OF_DAY))
+            if (finalOpenings[i + 1] < TimeRange.END_OF_DAY)
                 addE = 5;
             start = finalOpenings[i] - addS;
             end = finalOpenings[i + 1] + addE;
